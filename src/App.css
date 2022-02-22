@@ -1,0 +1,103 @@
+.container {  
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; 
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; 
+  gap: 0px 0px; 
+  grid-template-areas: 
+    "rodada . result result . total"
+    ". mesa mesa mesa mesa ."
+    ". mesa mesa mesa mesa ."
+    ". mesa mesa mesa mesa ."
+    ". mesa mesa mesa mesa ."
+    "acoes acoes acoes acoes . reset";
+  height: 90vh;
+  width: 90vw;
+}
+
+.mesa { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr 1fr; 
+  grid-template-rows: 1fr 1fr 1fr 1fr; 
+  gap: 0px 0px; 
+  grid-template-areas: 
+    ". player-3 player-3 ."
+    "player-2 tabuleiro tabuleiro player-4"
+    "player-2 tabuleiro tabuleiro player-4"
+    ". player-1 player-1 ."; 
+  grid-area: mesa; 
+  background-color: green;
+}
+
+.player-3 { 
+  grid-area: player-3;
+  justify-self: center;
+  align-self: center;
+}
+
+.player-1 { 
+  grid-area: player-1;
+  justify-self: center;
+  align-self: center;
+}
+
+.tabuleiro { 
+  grid-area: tabuleiro;
+  justify-self: center;
+  align-self: center;
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-rows: 1fr 1fr 1fr; 
+  grid-template-areas: 
+    ". card3 ."
+    "card2 . card4"
+    ". card1 ."; 
+}
+
+.player-4 { 
+  grid-area: player-4;
+  justify-self: center;
+  align-self: center;
+}
+
+.player-2 { 
+  grid-area: player-2;
+  justify-self: center;
+  align-self: center;
+}
+
+.rodada { 
+  grid-area: rodada;
+  justify-self: start;
+  align-self: center;
+}
+
+.total { 
+  grid-area: total;
+  justify-self: start;
+  align-self: center;
+}
+
+.reset { 
+  grid-area: reset; 
+  justify-self: start;
+  align-self: center;
+}
+
+.acoes { 
+  grid-area: acoes;
+  justify-self: start;
+  align-self: center;
+}
+
+.card3 { grid-area: card3; }
+.card2 { grid-area: card2; }
+.card1 { grid-area: card1; }
+.card4 { grid-area: card4; }
+
+.result { 
+  grid-area: result;
+  justify-self: center;
+  align-self: center;
+  display: flex;
+  align-items: center;
+}
