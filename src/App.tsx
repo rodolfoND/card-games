@@ -104,10 +104,20 @@ function App() {
   const [pairOnePoints, setPairOnePoints] = useState<number>(0);
   const [pairTwoPoints, setPairTwoPoints] = useState<number>(0);
   const [game, setGame] = useState<number>(1);
+  const [tieFirstRound, setTieFirstRound] = useState<boolean>(false);
+  const [tieSecondRound, setTieSecondRound] = useState<boolean>(false);
+  const [tieThirdRound, setTieThirdRound] = useState<boolean>(false);
   const playerOneCards: ICard[] = orderCardsByValue([cards[0], cards[1], cards[2]]);
   const playerTwoCards: ICard[] = orderCardsByValue([cards[3], cards[4], cards[5]]);
   const playerThreeCards: ICard[] = orderCardsByValue([cards[6], cards[7], cards[8]]);
   const playerFourCards: ICard[] = orderCardsByValue([cards[9], cards[10], cards[11]]);
+
+  function getPairs(player: number): number {
+    if (player === 1 || player === 3) {
+      return 1;
+    }
+    return 2;
+  }
 
   useEffect(() => {
     setCards(getCards(12));
@@ -115,7 +125,17 @@ function App() {
 
   useEffect(() => {
     if (roundOneCards.length === 4) {
-      const winnerCard: IPlayerCard = orderPlayerCardsByValue(roundOneCards)[3];
+      const orderedCards: IPlayerCard[] = orderPlayerCardsByValue(roundOneCards);
+      const winnerCard: IPlayerCard = orderedCards[3];
+      const higherLoserCard: IPlayerCard = orderedCards[2];
+      const mediumLoserCard: IPlayerCard = orderedCards[1];
+      if (((higherLoserCard.card.value === winnerCard.card.value)
+        && (getPairs(winnerCard.player) !== getPairs(higherLoserCard.player)
+          || ((mediumLoserCard.card.value === winnerCard.card.value)
+            && (getPairs(winnerCard.player) !== getPairs(mediumLoserCard.player))
+          )))) {
+        setTieFirstRound(true);
+      }
       setWinnerRoundOneCard(winnerCard);
       setPlayerAtual(winnerCard.player);
     }
@@ -123,7 +143,17 @@ function App() {
 
   useEffect(() => {
     if (roundTwoCards.length === 4) {
-      const winnerCard: IPlayerCard = orderPlayerCardsByValue(roundTwoCards)[3];
+      const orderedCards: IPlayerCard[] = orderPlayerCardsByValue(roundTwoCards);
+      const winnerCard: IPlayerCard = orderedCards[3];
+      const higherLoserCard: IPlayerCard = orderedCards[2];
+      const mediumLoserCard: IPlayerCard = orderedCards[1];
+      if (((higherLoserCard.card.value === winnerCard.card.value)
+        && (getPairs(winnerCard.player) !== getPairs(higherLoserCard.player)
+          || ((mediumLoserCard.card.value === winnerCard.card.value)
+            && (getPairs(winnerCard.player) !== getPairs(mediumLoserCard.player))
+          )))) {
+        setTieSecondRound(true);
+      }
       setWinnerRoundTwoCard(winnerCard);
       setPlayerAtual(winnerCard.player);
     }
@@ -131,7 +161,17 @@ function App() {
 
   useEffect(() => {
     if (roundThreeCards.length === 4) {
-      const winnerCard: IPlayerCard = orderPlayerCardsByValue(roundThreeCards)[3];
+      const orderedCards: IPlayerCard[] = orderPlayerCardsByValue(roundThreeCards);
+      const winnerCard: IPlayerCard = orderedCards[3];
+      const higherLoserCard: IPlayerCard = orderedCards[2];
+      const mediumLoserCard: IPlayerCard = orderedCards[1];
+      if (((higherLoserCard.card.value === winnerCard.card.value)
+        && (getPairs(winnerCard.player) !== getPairs(higherLoserCard.player)
+          || ((mediumLoserCard.card.value === winnerCard.card.value)
+            && (getPairs(winnerCard.player) !== getPairs(mediumLoserCard.player))
+          )))) {
+        setTieThirdRound(true);
+      }
       setWinnerRoundThreeCard(winnerCard);
       setPlayerAtual(winnerCard.player);
     }
@@ -139,13 +179,6 @@ function App() {
 
   function isRedCard(card: ICard): boolean {
     return card.suit < 3;
-  }
-
-  function getPairs(player: number): number {
-    if (player === 1 || player === 3) {
-      return 1;
-    }
-    return 2;
   }
 
   function playCard(card: IPlayerCard): void {
@@ -171,7 +204,12 @@ function App() {
     }
   }
 
-  function itsPairsWonTheHand(winnerCard?: IPlayerCard, pair?: number): string {
+  function itsPairsWonTheHand(winnerCard?: IPlayerCard, pair?: number, round?: number): string {
+    if ((tieFirstRound && round === 1)
+      || (tieSecondRound && round === 2)
+      || (tieThirdRound && round === 3)) {
+      return ' x';
+    }
     if (winnerCard && winnerCard.card) {
       if (getPairs(winnerCard.player) === pair) {
         return ' x';
@@ -223,6 +261,9 @@ function App() {
     setRoundTwoCards([]);
     setRoundThreeCards([]);
     setPlayedCards([]);
+    setTieFirstRound(false);
+    setTieSecondRound(false);
+    setTieThirdRound(false);
 
     if (game !== 4) {
       setGame(game + 1);
@@ -237,10 +278,73 @@ function App() {
     setWinnerRoundThreeCard(undefined);
   }
 
+  function printRoundsWinner(round: number): string {
+    if (round === 1 && roundOneCards.length === 4) {
+      if (tieFirstRound && winnerRoundOneCard?.card) {
+        return `Empate Primeira Mão: ${winnerRoundOneCard?.card.card}`;
+      }
+      if (roundOneCards.length === 4 && winnerRoundOneCard?.card) {
+        return `Winner Primeira Mão: ${winnerRoundOneCard?.card.card} - Player: ${winnerRoundOneCard?.player}`;
+      }
+    } else if (round === 2 && roundTwoCards.length === 4) {
+      if (tieSecondRound && winnerRoundTwoCard?.card) {
+        return `Empate Segunda Mão: ${winnerRoundTwoCard?.card.card}`;
+      }
+      if (roundTwoCards.length === 4 && winnerRoundTwoCard?.card) {
+        return `Winner Segunda Mão: ${winnerRoundTwoCard?.card.card} - Player: ${winnerRoundTwoCard?.player}`;
+      }
+    } else {
+      if (tieThirdRound && winnerRoundThreeCard?.card) {
+        return `Empate Terceira Mão: ${winnerRoundThreeCard?.card.card}`;
+      }
+      if (roundThreeCards.length === 4 && winnerRoundThreeCard?.card) {
+        return `Winner Terceira Mão: ${winnerRoundThreeCard?.card.card} - Player: ${winnerRoundThreeCard?.player}`;
+      }
+    }
+    return '';
+  }
   if (cards.length !== 12) {
     return (
       <h1>Loading</h1>
     );
+  }
+
+  function showPlayedCard(player: number): String {
+    if (roundTwoCards.length === 0 && roundOneCards.length > 0) {
+      let lastPlayedCard: IPlayerCard = roundOneCards[roundOneCards.length - 1];
+      for (let i = 0; i < roundOneCards.length; i += 1) {
+        if (roundOneCards[i].player === player) {
+          lastPlayedCard = roundOneCards[i];
+        }
+      }
+      if (lastPlayedCard.player === player) {
+        return lastPlayedCard.card.card;
+      }
+      return '';
+    } if (roundThreeCards.length === 0 && roundTwoCards.length > 0) {
+      let lastPlayedCard: IPlayerCard = roundTwoCards[roundTwoCards.length - 1];
+      for (let i = 0; i < roundTwoCards.length; i += 1) {
+        if (roundTwoCards[i].player === player) {
+          lastPlayedCard = roundTwoCards[i];
+        }
+      }
+      if (lastPlayedCard.player === player) {
+        return lastPlayedCard.card.card;
+      }
+      return '';
+    } if (roundThreeCards.length > 0) {
+      let lastPlayedCard: IPlayerCard = roundThreeCards[roundThreeCards.length - 1];
+      for (let i = 0; i < roundThreeCards.length; i += 1) {
+        if (roundThreeCards[i].player === player) {
+          lastPlayedCard = roundThreeCards[i];
+        }
+      }
+      if (lastPlayedCard.player === player) {
+        return lastPlayedCard.card.card;
+      }
+      return '';
+    }
+    return '';
   }
 
   return (
@@ -249,14 +353,14 @@ function App() {
         Mãos
         <br />
         Dupla 1:
-        {itsPairsWonTheHand(winnerRoundOneCard, 1)}
-        {itsPairsWonTheHand(winnerRoundTwoCard, 1)}
-        {itsPairsWonTheHand(winnerRoundThreeCard, 1)}
+        {itsPairsWonTheHand(winnerRoundOneCard, 1, 1)}
+        {itsPairsWonTheHand(winnerRoundTwoCard, 1, 2)}
+        {itsPairsWonTheHand(winnerRoundThreeCard, 1, 3)}
         <br />
         Dupla 2:
-        {itsPairsWonTheHand(winnerRoundOneCard, 2)}
-        {itsPairsWonTheHand(winnerRoundTwoCard, 2)}
-        {itsPairsWonTheHand(winnerRoundThreeCard, 2)}
+        {itsPairsWonTheHand(winnerRoundOneCard, 2, 1)}
+        {itsPairsWonTheHand(winnerRoundTwoCard, 2, 2)}
+        {itsPairsWonTheHand(winnerRoundThreeCard, 2, 3)}
       </div>
       <div className="total">
         Tentos
@@ -373,25 +477,22 @@ function App() {
           </Paragrafo>
         </div>
         <div className="tabuleiro">
-          <div className="card3">{playedCards.map((i) => (i.player === 3 ? i.card.card : null))}</div>
-          <div className="card2">{playedCards.map((i) => (i.player === 2 ? i.card.card : null))}</div>
-          <div className="card1">{playedCards.map((i) => (i.player === 1 ? i.card.card : null))}</div>
-          <div className="card4">{playedCards.map((i) => (i.player === 4 ? i.card.card : null))}</div>
+          <div className="card3">{showPlayedCard(3)}</div>
+          <div className="card2">{showPlayedCard(2)}</div>
+          <div className="card1">{showPlayedCard(1)}</div>
+          <div className="card4">{showPlayedCard(4)}</div>
         </div>
       </div>
       <div className="result">
         <div>
           <p>
-            {roundOneCards.length === 4 ? 'Winner Primeira Mão: ' : null}
-            {roundOneCards.length === 4 ? winnerRoundOneCard?.card ? `${winnerRoundOneCard?.card.card} - Player: ${winnerRoundOneCard?.player}` : null : null}
+            {printRoundsWinner(1)}
           </p>
           <p>
-            {roundTwoCards.length === 4 ? 'Winner Segunda Mão: ' : null}
-            {roundTwoCards.length === 4 ? winnerRoundTwoCard?.card ? `${winnerRoundTwoCard?.card.card} - Player: ${winnerRoundTwoCard?.player}` : null : null}
+            {printRoundsWinner(2)}
           </p>
           <p>
-            {roundThreeCards.length === 4 ? 'Winner Terceira Mão: ' : null}
-            {roundThreeCards.length === 4 ? winnerRoundThreeCard?.card ? `${winnerRoundThreeCard?.card.card} - Player: ${winnerRoundThreeCard?.player}` : null : null}
+            {printRoundsWinner(3)}
           </p>
         </div>
         {playedCards.length === 12 ? (
