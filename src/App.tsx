@@ -145,7 +145,7 @@ function App() {
   useEffect(() => {
     if (roundTwoCards.length === 4) {
       const orderedCards: IPlayerCard[] = orderPlayerCardsByValue(roundTwoCards);
-      const winnerCard: IPlayerCard = orderedCards[3];
+      let winnerCard: IPlayerCard = orderedCards[3];
       const higherLoserCard: IPlayerCard = orderedCards[2];
       const mediumLoserCard: IPlayerCard = orderedCards[1];
       if (((higherLoserCard.card.value === winnerCard.card.value)
@@ -154,6 +154,11 @@ function App() {
             && (getPairs(winnerCard.player) !== getPairs(mediumLoserCard.player))
           )))) {
         setTieSecondRound(true);
+        if (winnerRoundOneCard
+          && (getPairs(winnerCard.player) !== getPairs(winnerRoundOneCard.player))) {
+          winnerCard = { ...winnerCard, player: winnerRoundOneCard.player };
+        }
+        setGameFinished(true);
       }
       setWinnerRoundTwoCard(winnerCard);
       setPlayerAtual(winnerCard.player);
@@ -168,7 +173,7 @@ function App() {
   useEffect(() => {
     if (roundThreeCards.length === 4) {
       const orderedCards: IPlayerCard[] = orderPlayerCardsByValue(roundThreeCards);
-      const winnerCard: IPlayerCard = orderedCards[3];
+      let winnerCard: IPlayerCard = orderedCards[3];
       const higherLoserCard: IPlayerCard = orderedCards[2];
       const mediumLoserCard: IPlayerCard = orderedCards[1];
       if (((higherLoserCard.card.value === winnerCard.card.value)
@@ -177,6 +182,10 @@ function App() {
             && (getPairs(winnerCard.player) !== getPairs(mediumLoserCard.player))
           )))) {
         setTieThirdRound(true);
+        if (winnerRoundOneCard
+          && (getPairs(winnerCard.player) !== getPairs(winnerRoundOneCard.player))) {
+          winnerCard = { ...winnerCard, player: winnerRoundOneCard.player };
+        }
       }
       setWinnerRoundThreeCard(winnerCard);
       setPlayerAtual(winnerCard.player);
@@ -214,8 +223,7 @@ function App() {
 
   function itsPairsWonTheHand(winnerCard?: IPlayerCard, pair?: number, round?: number): string {
     if ((tieFirstRound && round === 1)
-      || (tieSecondRound && round === 2)
-      || (tieThirdRound && round === 3)) {
+      || (tieSecondRound && round === 2)) {
       return ' x';
     }
     if (winnerCard && winnerCard.card) {
