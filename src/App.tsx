@@ -107,6 +107,7 @@ function App() {
   const [tieFirstRound, setTieFirstRound] = useState<boolean>(false);
   const [tieSecondRound, setTieSecondRound] = useState<boolean>(false);
   const [tieThirdRound, setTieThirdRound] = useState<boolean>(false);
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
   const playerOneCards: ICard[] = orderCardsByValue([cards[0], cards[1], cards[2]]);
   const playerTwoCards: ICard[] = orderCardsByValue([cards[3], cards[4], cards[5]]);
   const playerThreeCards: ICard[] = orderCardsByValue([cards[6], cards[7], cards[8]]);
@@ -156,6 +157,11 @@ function App() {
       }
       setWinnerRoundTwoCard(winnerCard);
       setPlayerAtual(winnerCard.player);
+      if ((winnerRoundOneCard && winnerCard
+        && getPairs(winnerRoundOneCard.player) === getPairs(winnerCard.player))
+        || (tieFirstRound)) {
+        setGameFinished(true);
+      }
     }
   }, [roundTwoCards]);
 
@@ -182,24 +188,26 @@ function App() {
   }
 
   function playCard(card: IPlayerCard): void {
-    if (!(playedCards.find((e) => e === card)) && (card.player === playerAtual)) {
-      setPlayedCards([...playedCards, card]);
+    if (!gameFinished) {
+      if (!(playedCards.find((e) => e === card)) && (card.player === playerAtual)) {
+        setPlayedCards([...playedCards, card]);
 
-      if (roundOneCards.length < 4) {
-        if (!roundOneCards.find((e) => e === card)) {
-          setRoundOneCards([...roundOneCards, card]);
+        if (roundOneCards.length < 4) {
+          if (!roundOneCards.find((e) => e === card)) {
+            setRoundOneCards([...roundOneCards, card]);
+          }
+        } else if (roundTwoCards.length < 4) {
+          if (!roundTwoCards.find((e) => e === card)) {
+            setRoundTwoCards([...roundTwoCards, card]);
+          }
+        } else if (!roundThreeCards.find((e) => e === card)) {
+          setRoundThreeCards([...roundThreeCards, card]);
         }
-      } else if (roundTwoCards.length < 4) {
-        if (!roundTwoCards.find((e) => e === card)) {
-          setRoundTwoCards([...roundTwoCards, card]);
+        if (playerAtual === 4) {
+          setPlayerAtual(1);
+        } else {
+          setPlayerAtual(playerAtual + 1);
         }
-      } else if (!roundThreeCards.find((e) => e === card)) {
-        setRoundThreeCards([...roundThreeCards, card]);
-      }
-      if (playerAtual === 4) {
-        setPlayerAtual(1);
-      } else {
-        setPlayerAtual(playerAtual + 1);
       }
     }
   }
@@ -264,6 +272,7 @@ function App() {
     setTieFirstRound(false);
     setTieSecondRound(false);
     setTieThirdRound(false);
+    setGameFinished(false);
 
     if (game !== 4) {
       setGame(game + 1);
@@ -373,7 +382,7 @@ function App() {
       </div>
       <div className="mesa">
         <div className="player-1">
-          <Paragrafo enabled={playerAtual === 1}>
+          <Paragrafo enabled={playerAtual === 1 && !gameFinished}>
             Player 1:
             <Carta
               red={!!isRedCard(playerOneCards[0])}
@@ -399,7 +408,7 @@ function App() {
           </Paragrafo>
         </div>
         <div className="player-2">
-          <Paragrafo enabled={playerAtual === 2}>
+          <Paragrafo enabled={playerAtual === 2 && !gameFinished}>
             Player 2:
             <Carta
               red={!!isRedCard(playerTwoCards[0])}
@@ -425,7 +434,7 @@ function App() {
           </Paragrafo>
         </div>
         <div className="player-3">
-          <Paragrafo enabled={playerAtual === 3}>
+          <Paragrafo enabled={playerAtual === 3 && !gameFinished}>
             Player 3:
             <Carta
               red={!!isRedCard(playerThreeCards[0])}
@@ -451,7 +460,7 @@ function App() {
           </Paragrafo>
         </div>
         <div className="player-4">
-          <Paragrafo enabled={playerAtual === 4}>
+          <Paragrafo enabled={playerAtual === 4 && !gameFinished}>
             Player 4:
             <Carta
               red={!!isRedCard(playerFourCards[0])}
@@ -495,7 +504,7 @@ function App() {
             {printRoundsWinner(3)}
           </p>
         </div>
-        {playedCards.length === 12 ? (
+        {playedCards.length === 12 || gameFinished ? (
           <input
             type="button"
             value="Próximo Jogo"
